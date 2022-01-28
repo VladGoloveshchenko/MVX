@@ -5,12 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
-import com.example.mvx.BuildConfig
 import com.example.mvx.databinding.FragmentMvvmBinding
+import com.example.mvx.model.LceState
 import com.example.mvx.model.ServiceProvider
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -41,13 +43,22 @@ class MVVMFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.listFlow
+        viewModel.lceFlow
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-            .onEach { items ->
-                binding.textResult.text = null
-                items.forEach {
-                    binding.textResult.append(it.toString())
-                    binding.textResult.append("\n")
+            .onEach { lce ->
+                binding.progress.isVisible = lce == LceState.Loading
+                when (lce) {
+                    is LceState.Content -> {
+                        binding.textResult.text = null
+                        lce.items.forEach {
+                            binding.textResult.append(it.toString())
+                            binding.textResult.append("\n")
+                        }
+                    }
+                    is LceState.Error -> {
+                        Snackbar.make(view, lce.throwable.message ?: "", Snackbar.LENGTH_SHORT)
+                            .show()
+                    }
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)

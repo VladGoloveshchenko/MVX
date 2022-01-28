@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mvx.model.DataStore
 import com.example.mvx.model.Entity
+import com.example.mvx.model.LceState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
@@ -18,13 +19,17 @@ class MVVMViewModel(private val dataStore: DataStore) : ViewModel() {
     )
     val sharedFlow: Flow<Unit> = mutableSharedFlow.asSharedFlow()
 
-    private val _listFlow = MutableStateFlow<List<Entity>>(emptyList())
-    val listFlow: Flow<List<Entity>> = _listFlow.asStateFlow()
+    private val _lceFlow = MutableStateFlow<LceState<List<Entity>>>(LceState.Loading)
+    val lceFlow: Flow<LceState<List<Entity>>> = _lceFlow.asStateFlow()
 
     init {
         viewModelScope.launch {
-            val items = withContext(Dispatchers.IO) { dataStore.fetchItems() }
-            _listFlow.tryEmit(items)
+            try {
+                val items = withContext(Dispatchers.IO) { dataStore.fetchItems() }
+                _lceFlow.tryEmit(LceState.Content(items))
+            } catch (e: Throwable) {
+                _lceFlow.tryEmit(LceState.Error(e))
+            }
         }
     }
 
