@@ -55,10 +55,6 @@ class MvpFragment : Fragment(), MvpView {
     }
 
     override fun showItems(items: List<Entity>) {
-        binding.textResult.text = null
-        items.forEach {
-            binding.textResult.append(it.toString())
-            binding.textResult.append("\n")
-        }
+        binding.textResult.text = items.joinToString(separator = "\n")
     }
 }

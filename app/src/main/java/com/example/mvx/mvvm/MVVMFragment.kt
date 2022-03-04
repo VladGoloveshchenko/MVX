@@ -49,11 +49,7 @@ class MVVMFragment : Fragment() {
                 binding.progress.isVisible = lce == LceState.Loading
                 when (lce) {
                     is LceState.Content -> {
-                        binding.textResult.text = null
-                        lce.items.forEach {
-                            binding.textResult.append(it.toString())
-                            binding.textResult.append("\n")
-                        }
+                        binding.textResult.text = lce.items.joinToString(separator = "\n")
                     }
                     is LceState.Error -> {
                         Snackbar.make(view, lce.throwable.message ?: "", Snackbar.LENGTH_SHORT)

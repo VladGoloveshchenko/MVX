@@ -3,6 +3,7 @@ package com.example.mvx
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
+import com.example.mvx.mvi.MVIFragment
 import com.example.mvx.mvvm.MVVMFragment
 
 class MainActivity : AppCompatActivity() {
@@ -13,7 +14,7 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
-                add(R.id.container, MVVMFragment())
+                add(R.id.container, MVIFragment())
                 addToBackStack(null)
             }
         }
